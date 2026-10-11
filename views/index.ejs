@@ -1,0 +1,95 @@
+<%- include("partials/header", { pageTitle }) %>
+<main>
+  <section class="hero container">
+    <div class="hero-content">
+      <span class="eyebrow hero-eyebrow"><span class="eyebrow-dot"></span> KHU VƯỜN BẮT ĐẦU TỪ ĐÂY</span>
+      <h1>Gieo một hạt mầm,<br><em>nở một niềm vui.</em></h1>
+      <p>Chọn những hạt giống hoa xinh, tự tay vun trồng và đón khu vườn nhỏ nở hoa mỗi ngày.</p>
+      <a class="button button-primary" href="#products">Khám phá ngay <span>→</span></a>
+      <div class="hero-note"><span class="avatar-stack"><i>✿</i><i>❋</i><i>❀</i></span><span>Được yêu thương bởi <strong>2.000+</strong> người làm vườn</span></div>
+    </div>
+    <div class="hero-visual">
+      <img src="https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1200&q=90" alt="Bó hoa tươi trong khu vườn xanh">
+      <div class="hero-sticker"><span>✿</span><strong>Một chút<br>thiên nhiên</strong></div>
+      <div class="hero-caption"><span class="caption-dot"></span> Những điều đẹp đẽ cần thời gian để nở hoa</div>
+    </div>
+    <div class="hero-decoration decoration-one">✳</div><div class="hero-decoration decoration-two">✽</div>
+  </section>
+
+  <section class="category-section container" aria-labelledby="category-title">
+    <div class="section-heading compact-heading">
+      <div><span class="eyebrow">TÌM ĐÚNG SẮC HOA</span><h2 id="category-title">Bạn đang tìm gì?</h2></div>
+      <a class="subtle-link" href="#products">Xem tất cả sản phẩm <span>→</span></a>
+    </div>
+    <div class="category-list">
+      <% categories.forEach((category, index) => { %>
+        <a class="category-chip" href="/?category=<%= encodeURIComponent(category) %>">
+          <span class="category-icon category-icon-<%= index + 1 %>"><%= ["⌂", "✿", "♡", "☼"][index] %></span>
+          <span><strong><%= category %></strong><small><%= ["Rực rỡ nơi ban công", "Đẹp trong từng chiếc bình", "Nét duyên cổ điển", "Dành cho người mới"][index] %></small></span>
+          <span class="category-arrow">↗</span>
+        </a>
+      <% }) %>
+    </div>
+  </section>
+
+  <section class="product-section" id="products">
+    <div class="container">
+      <div class="section-heading">
+        <div><span class="eyebrow">CHỌN HẠT GIỐNG, GIEO HẠNH PHÚC</span><h2>Những mầm xanh đang chờ</h2><p>Mỗi hạt giống là một lời hẹn dịu dàng với thiên nhiên.</p></div>
+        <span class="product-result-count"><%= products.length %> sản phẩm</span>
+      </div>
+      <form class="filter-bar" action="/" method="get">
+        <input type="hidden" name="search" value="<%= filters.search %>">
+        <label class="filter-label" for="category-filter">Danh mục</label>
+        <select id="category-filter" name="category">
+          <option value="">Tất cả danh mục</option>
+          <% categories.forEach((category) => { %><option value="<%= category %>" <%= filters.category === category ? "selected" : "" %>><%= category %></option><% }) %>
+        </select>
+        <label class="filter-label" for="difficulty-filter">Độ khó</label>
+        <select id="difficulty-filter" name="difficulty">
+          <option value="">Mọi cấp độ</option>
+          <% ["Dễ", "Trung bình", "Khó"].forEach((difficulty) => { %><option value="<%= difficulty %>" <%= filters.difficulty === difficulty ? "selected" : "" %>><%= difficulty %></option><% }) %>
+        </select>
+        <label class="filter-label" for="min-price">Giá từ</label>
+        <input id="min-price" name="minPrice" type="number" min="0" placeholder="0đ" value="<%= filters.minPrice %>">
+        <label class="filter-label" for="max-price">Đến</label>
+        <input id="max-price" name="maxPrice" type="number" min="0" placeholder="Không giới hạn" value="<%= filters.maxPrice %>">
+        <button class="filter-submit" type="submit">Lọc sản phẩm</button>
+        <% if (filters.search || filters.category || filters.difficulty || filters.minPrice || filters.maxPrice) { %><a class="filter-reset" href="/#products">Xóa lọc</a><% } %>
+      </form>
+      <% if (products.length) { %>
+        <div class="product-grid">
+          <% products.forEach((product, index) => { %>
+            <article class="product-card">
+              <a class="product-image-wrap" href="/products/<%= product.id %>">
+                <img class="product-image" src="<%= product.image_url %>" alt="<%= product.name %>" loading="lazy">
+                <% if (index === 0) { %><span class="product-badge">Được yêu thích</span><% } %>
+                <span class="image-action" aria-hidden="true">↗</span>
+              </a>
+              <div class="product-info">
+                <div class="product-category"><%= product.category %></div>
+                <h3><a href="/products/<%= product.id %>"><%= product.name %></a></h3>
+                <div class="product-meta"><span>◷ Nảy mầm <%= product.germination_days %></span><span class="difficulty difficulty-<%= product.difficulty === 'Dễ' ? 'easy' : product.difficulty === 'Khó' ? 'hard' : 'medium' %>"><%= product.difficulty %></span></div>
+                <div class="product-card-bottom">
+                  <strong class="product-price"><%= Number(product.price).toLocaleString("vi-VN") %><small>đ</small></strong>
+                  <button class="add-cart-button" type="button" data-add-cart data-id="<%= product.id %>" data-name="<%= product.name %>" data-price="<%= product.price %>" data-image="<%= product.image_url %>" <%= product.stock === 0 ? "disabled" : "" %>>
+                    <span aria-hidden="true">＋</span> <%= product.stock > 0 ? "Thêm vào giỏ" : "Hết hàng" %>
+                  </button>
+                </div>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <div class="empty-results"><span>✿</span><h3>Chưa tìm thấy hạt giống phù hợp</h3><p>Thử thay đổi từ khóa hoặc điều kiện lọc nhé.</p><a class="button button-primary" href="/#products">Xem tất cả sản phẩm</a></div>
+      <% } %>
+    </div>
+  </section>
+
+  <section class="care-banner container">
+    <div class="care-illustration" aria-hidden="true"><span>☼</span><i>✿</i><i>✽</i></div>
+    <div><span class="eyebrow">MẦM NON ĐẦU TIÊN</span><h2>Chưa biết bắt đầu từ đâu?</h2><p>Cùng FloraSeed khám phá những mẹo gieo trồng thật dễ, để hạt giống nào cũng có cơ hội nở hoa.</p></div>
+    <a class="button button-outline" href="/guide">Đọc cẩm nang <span>→</span></a>
+  </section>
+</main>
+<%- include("partials/footer") %>

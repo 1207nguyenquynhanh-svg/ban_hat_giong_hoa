@@ -1,0 +1,31 @@
+<%- include("partials/header", { pageTitle }) %>
+<main class="login-page container">
+  <section class="login-card">
+    <div class="login-flower" aria-hidden="true">✿</div>
+    <span class="eyebrow">KHU VƯỜN RIÊNG CỦA BẠN</span>
+    <h1>Chào mừng trở lại</h1>
+    <p class="login-intro">Đăng nhập FloraSeed để tiếp tục hành trình gieo trồng.</p>
+    <% if (error) { %><div class="form-error" role="alert"><%= error %></div><% } %>
+    <form action="/login" method="post" id="login-form">
+      <label for="username">Tên đăng nhập</label>
+      <input id="username" name="username" type="text" autocomplete="username" value="<%= username %>" maxlength="80" required>
+      <label for="password">Mật khẩu</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <small class="input-hint">Mật khẩu cần có ít nhất một ký tự @.</small>
+      <button class="button button-primary login-submit" type="submit">Đăng nhập <span>→</span></button>
+    </form>
+    <a class="back-link" href="/">← Trở về cửa hàng</a>
+  </section>
+</main>
+<script>
+  // Kiểm tra nhanh cho người dùng; máy chủ cũng xác nhận điều kiện này.
+  document.getElementById("login-form").addEventListener("submit", (event) => {
+    const password = document.getElementById("password").value;
+    if (!password.includes("@")) {
+      event.preventDefault();
+      window.alert("Mật khẩu phải chứa ký tự @.");
+      document.getElementById("password").focus();
+    }
+  });
+</script>
+<%- include("partials/footer") %>

@@ -1,1 +1,43 @@
-# ban_hat_giong_hoa
+# FloraSeed — Hạt giống hoa
+
+Website bán hạt giống hoa FloraSeed dùng Node.js, Express, EJS và SQLite. Mã
+nguồn được chia theo mô hình MVC: model truy cập dữ liệu, controller xử lý yêu
+cầu, router định tuyến và view hiển thị giao diện. Giỏ hàng lưu trong
+LocalStorage của trình duyệt.
+
+## Chạy ứng dụng
+
+```sh
+npm install
+npm start
+```
+
+Mở <http://localhost:3000>. Có thể dùng `npm run dev` trên Node.js 18+ để tự
+khởi động lại máy chủ khi sửa mã nguồn. Đặt biến môi trường `PORT` để đổi cổng.
+
+Tài khoản admin demo: `admin` / `Flora@Seed123`. Mật khẩu đăng nhập bắt buộc có
+ký tự `@`; quy tắc được kiểm tra cả ở giao diện và máy chủ. Khi triển khai, hãy
+đặt `SESSION_SECRET` thành một chuỗi bí mật riêng.
+
+## Cấu trúc MVC
+
+```text
+config/db.js                    Kết nối SQLite, khởi tạo bảng và dữ liệu mẫu
+models/productModel.js          Tìm kiếm sản phẩm và lưu đơn đặt hàng
+models/userModel.js             Truy vấn tài khoản
+controllers/                    Xử lý trang sản phẩm, đặt hàng và đăng nhập
+routes/productRoutes.js         Định tuyến cửa hàng và checkout
+routes/authRoutes.js            Định tuyến đăng nhập và đăng xuất
+views/                          Các trang EJS và partial dùng chung
+public/css/style.css            Giao diện responsive
+public/js/main.js               Giỏ hàng và gửi yêu cầu đặt hàng
+server.js                       Cấu hình Express và khởi chạy ứng dụng
+```
+
+Hàm `validatePassword` trong `controllers/authController.js` đảm bảo mật khẩu
+đăng nhập chứa ký tự `@`; controller gọi hàm này ở phía máy chủ.
+
+Danh sách sản phẩm mẫu được thêm tự động khi khởi động. Bộ lọc và tìm kiếm đọc
+dữ liệu SQLite; máy chủ xác minh giá và tồn kho khi tạo đơn. Thanh toán chỉ là
+mô phỏng: đơn hàng được lưu trong SQLite và xác nhận trên trình duyệt, không
+tích hợp cổng thanh toán.

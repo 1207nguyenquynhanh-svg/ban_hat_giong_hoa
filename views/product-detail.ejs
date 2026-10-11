@@ -1,0 +1,22 @@
+<%- include("partials/header", { pageTitle }) %>
+<main class="container detail-page">
+  <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Trang chủ</a><span>/</span><a href="/#products">Hạt giống hoa</a><span>/</span><span><%= product.name %></span></nav>
+  <section class="detail-layout">
+    <div class="detail-image"><img src="<%= product.image_url %>" alt="<%= product.name %>"></div>
+    <div class="detail-copy">
+      <span class="eyebrow"><%= product.category %></span>
+      <h1><%= product.name %></h1>
+      <p class="detail-description"><%= product.description %></p>
+      <div class="detail-price"><%= Number(product.price).toLocaleString("vi-VN") %><small>đ / gói</small></div>
+      <div class="detail-facts">
+        <div><span>Thời gian nảy mầm</span><strong><%= product.germination_days %></strong></div>
+        <div><span>Độ khó gieo trồng</span><strong><%= product.difficulty %></strong></div>
+        <div><span>Tình trạng</span><strong><%= product.stock > 0 ? "Còn hàng" : "Tạm hết hàng" %></strong></div>
+      </div>
+      <button class="button button-primary detail-add" type="button" data-add-cart data-id="<%= product.id %>" data-name="<%= product.name %>" data-price="<%= product.price %>" data-image="<%= product.image_url %>" <%= product.stock === 0 ? "disabled" : "" %>>Thêm vào giỏ hàng <span>＋</span></button>
+      <a class="back-link" href="/#products">← Tiếp tục chọn hạt giống</a>
+      <div class="detail-promise"><span>✿</span><span><strong>Gói hạt giống được chọn lọc</strong><br>Hướng dẫn gieo trồng đi kèm mỗi đơn hàng.</span></div>
+    </div>
+  </section>
+</main>
+<%- include("partials/footer") %>

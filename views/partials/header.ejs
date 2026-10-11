@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f8f0">
+  <title><%= pageTitle ? `${pageTitle} | FloraSeed` : "FloraSeed | Gieo sắc hoa, nở niềm vui" %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-main container">
+      <a class="brand" href="/" aria-label="FloraSeed - Trang chủ"><span class="brand-mark">f</span><span>Flora<span class="brand-light">Seed</span></span></a>
+      <form class="search-form" action="/" method="get" role="search">
+        <label class="sr-only" for="site-search">Tìm hạt giống</label>
+        <input id="site-search" name="search" type="search" placeholder="Tìm hạt giống bạn yêu..." value="<%= typeof filters !== 'undefined' && filters.search ? filters.search : '' %>">
+        <button type="submit" aria-label="Tìm kiếm">⌕</button>
+      </form>
+      <div class="header-actions">
+        <% if (currentUser) { %>
+          <span class="user-greeting">Xin chào, <%= currentUser.username %></span>
+          <form action="/logout" method="post"><button class="text-button" type="submit">Đăng xuất</button></form>
+        <% } else { %>
+          <a class="login-link" href="/login"><span aria-hidden="true">♙</span> Đăng nhập Admin</a>
+        <% } %>
+        <button class="cart-trigger" type="button" data-cart-open aria-label="Mở giỏ hàng">
+          <span aria-hidden="true">♡</span><span class="cart-trigger-label">Giỏ hàng</span><span class="cart-count" data-cart-count>0</span>
+        </button>
+      </div>
+    </div>
+    <nav class="main-nav" aria-label="Điều hướng chính">
+      <div class="container nav-inner">
+        <a href="/" class="<%= pageTitle === 'Hạt giống hoa' ? 'active' : '' %>">Trang chủ</a>
+        <a href="/#products">Danh mục hạt giống</a>
+        <a href="/guide">Hướng dẫn gieo trồng</a>
+        <a class="nav-promo" href="/?category=<%= encodeURIComponent('Hạt giống dễ trồng') %>">Hạt giống dễ trồng <span>→</span></a>
+      </div>
+    </nav>
+  </header>

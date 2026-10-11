@@ -1,0 +1,42 @@
+  <footer class="site-footer">
+    <div class="container footer-main">
+      <div>
+        <a class="brand footer-brand" href="/"><span class="brand-mark">f</span><span>Flora<span class="brand-light">Seed</span></span></a>
+        <p>Gieo sắc hoa, nở niềm vui.<br>Gửi một chút xanh đến ngôi nhà bạn.</p>
+      </div>
+      <div><h3>Khám phá</h3><a href="/#products">Sản phẩm</a><a href="/guide">Cẩm nang gieo trồng</a></div>
+      <div><h3>FloraSeed</h3><span>Hạt giống được tuyển chọn</span><span>Chăm sóc tận tâm</span></div>
+      <div><h3>Liên hệ</h3><span>Thứ 2 – Chủ nhật</span><span>08:00 – 20:00</span></div>
+    </div>
+    <div class="footer-bottom">© <%= new Date().getFullYear() %> FloraSeed · Gieo mầm xanh, nuôi dưỡng yêu thương.</div>
+  </footer>
+
+  <div class="cart-backdrop" data-cart-close></div>
+  <aside class="cart-drawer" id="cart-drawer" aria-labelledby="cart-title" aria-hidden="true">
+    <div class="cart-heading">
+      <div><span class="eyebrow">Góc vườn của bạn</span><h2 id="cart-title">Giỏ hàng <span data-cart-count>0</span></h2></div>
+      <button class="icon-button" type="button" data-cart-close aria-label="Đóng giỏ hàng">×</button>
+    </div>
+    <div class="cart-items" data-cart-items></div>
+    <div class="cart-empty" data-cart-empty>
+      <span aria-hidden="true">✿</span><p>Giỏ hàng đang chờ những hạt mầm đầu tiên.</p>
+      <button class="button button-outline" type="button" data-cart-close>Tiếp tục mua sắm</button>
+    </div>
+    <div class="cart-checkout" data-cart-checkout hidden>
+      <div class="cart-total"><span>Tạm tính</span><strong data-cart-total>0đ</strong></div>
+      <form id="checkout-form">
+        <label for="customer-name">Họ và tên</label>
+        <input id="customer-name" name="customerName" autocomplete="name" required maxlength="100" minlength="2">
+        <label for="customer-phone">Số điện thoại</label>
+        <input id="customer-phone" name="phone" type="tel" autocomplete="tel" required>
+        <label for="customer-address">Địa chỉ nhận hàng</label>
+        <textarea id="customer-address" name="address" autocomplete="street-address" required minlength="8" maxlength="300" rows="2"></textarea>
+        <p class="checkout-error" data-checkout-error role="alert"></p>
+        <button class="button button-primary checkout-button" type="submit">Đặt hàng ngay <span>→</span></button>
+      </form>
+      <p class="secure-note">Đơn hàng sẽ được xác nhận ngay trên website.</p>
+    </div>
+  </aside>
+  <script src="/js/main.js" defer></script>
+</body>
+</html>
