@@ -1,3 +1,5 @@
 node_modules/
 database.sqlite
 floraseed.db
+public/uploads/*
+!public/uploads/.gitkeep

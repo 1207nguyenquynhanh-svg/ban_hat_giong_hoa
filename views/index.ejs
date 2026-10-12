@@ -72,9 +72,11 @@
                 <div class="product-meta"><span>◷ Nảy mầm <%= product.germination_days %></span><span class="difficulty difficulty-<%= product.difficulty === 'Dễ' ? 'easy' : product.difficulty === 'Khó' ? 'hard' : 'medium' %>"><%= product.difficulty %></span></div>
                 <div class="product-card-bottom">
                   <strong class="product-price"><%= Number(product.price).toLocaleString("vi-VN") %><small>đ</small></strong>
-                  <button class="add-cart-button" type="button" data-add-cart data-id="<%= product.id %>" data-name="<%= product.name %>" data-price="<%= product.price %>" data-image="<%= product.image_url %>" <%= product.stock === 0 ? "disabled" : "" %>>
-                    <span aria-hidden="true">＋</span> <%= product.stock > 0 ? "Thêm vào giỏ" : "Hết hàng" %>
-                  </button>
+                  <% if (canShop) { %>
+                    <button class="add-cart-button" type="button" data-add-cart data-id="<%= product.id %>" data-name="<%= product.name %>" data-price="<%= product.price %>" data-image="<%= product.image_url %>" <%= product.stock === 0 ? "disabled" : "" %>>
+                      <span aria-hidden="true">＋</span> <%= product.stock > 0 ? "Thêm vào giỏ" : "Hết hàng" %>
+                    </button>
+                  <% } %>
                 </div>
               </div>
             </article>

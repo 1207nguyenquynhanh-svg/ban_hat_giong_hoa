@@ -10,11 +10,17 @@ function hashPassword(password, salt) {
 }
 
 function showLogin(req, res) {
+  const returnTo = typeof req.query.returnTo === "string"
+    && req.query.returnTo.startsWith("/")
+    && !req.query.returnTo.startsWith("//")
+    ? req.query.returnTo
+    : "/";
   res.render("login", {
     pageTitle: "Đăng nhập FloraSeed",
-    error: null,
+    error: typeof req.query.message === "string" ? req.query.message.slice(0, 180) : null,
     username: "",
-    mode: "login"
+    mode: "login",
+    returnTo
   });
 }
 
@@ -23,19 +29,26 @@ function showRegister(req, res) {
     pageTitle: "Tạo tài khoản FloraSeed",
     error: null,
     username: "",
-    mode: "register"
+    mode: "register",
+    returnTo: "/"
   });
 }
 
 async function login(req, res, next) {
   const username = typeof req.body.username === "string" ? req.body.username.trim() : "";
   const password = typeof req.body.password === "string" ? req.body.password : "";
+  const returnTo = typeof req.body.returnTo === "string"
+    && req.body.returnTo.startsWith("/")
+    && !req.body.returnTo.startsWith("//")
+    ? req.body.returnTo
+    : "/";
   if (!username || username.length > 80) {
     res.status(400).render("login", {
       pageTitle: "Đăng nhập FloraSeed",
       error: "Vui lòng nhập tên đăng nhập hợp lệ.",
       username: username.slice(0, 80),
-      mode: "login"
+      mode: "login",
+      returnTo
     });
     return;
   }
@@ -45,7 +58,8 @@ async function login(req, res, next) {
       pageTitle: "Đăng nhập FloraSeed",
       error: "Mật khẩu phải chứa ký tự @ và không dài quá 256 ký tự.",
       username,
-      mode: "login"
+      mode: "login",
+      returnTo
     });
     return;
   }
@@ -62,7 +76,7 @@ async function login(req, res, next) {
             return;
           }
           req.session.user = { id: user.id, username: user.username, role: user.role };
-          res.redirect("/");
+          res.redirect(returnTo);
         });
         return;
       }
@@ -71,7 +85,8 @@ async function login(req, res, next) {
       pageTitle: "Đăng nhập FloraSeed",
       error: "Tên đăng nhập hoặc mật khẩu không chính xác.",
       username,
-      mode: "login"
+      mode: "login",
+      returnTo
     });
   } catch (error) {
     next(error);

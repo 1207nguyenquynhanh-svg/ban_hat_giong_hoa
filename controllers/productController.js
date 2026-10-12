@@ -64,10 +64,25 @@ function guide(req, res) {
 }
 
 async function checkout(req, res, next) {
-  const { customerName, phone, address, items } = req.body || {};
+  if (!req.session.user) {
+    res.status(401).json({
+      error: "Vui lòng đăng nhập tài khoản để tiến hành đặt hàng.",
+      loginUrl: `/login?message=${encodeURIComponent("Vui lòng đăng nhập tài khoản để tiến hành đặt hàng.")}`
+    });
+    return;
+  }
+  if (req.session.user.role !== "customer") {
+    res.status(403).json({ error: "Tài khoản quản trị không thể đặt hàng." });
+    return;
+  }
+
+  const { customerName, phone, address } = req.body || {};
+  const items = req.session.cart?.ownerId === getCartOwnerId(req)
+    ? req.session.cart.items
+    : [];
   if (
     typeof customerName !== "string" || customerName.trim().length < 2 || customerName.trim().length > 100
-    || typeof phone !== "string" || !/^[0-9+().\-\s]{8,20}$/.test(phone.trim())
+    || typeof phone !== "string" || !/^[0-9]{10}$/.test(phone)
     || typeof address !== "string" || address.trim().length < 8 || address.trim().length > 300
     || !Array.isArray(items) || items.length < 1 || items.length > 50
   ) {
@@ -95,11 +110,13 @@ async function checkout(req, res, next) {
 
   try {
     const order = await orderModel.createOrder({
+      userId: req.session.user.id,
       customerName: customerName.trim(),
       phone: phone.trim(),
       address: address.trim(),
       items: [...quantities].map(([id, quantity]) => ({ id, quantity }))
     });
+    req.session.cart = { ownerId: getCartOwnerId(req), items: [] };
     res.status(201).json(order);
   } catch (error) {
     if (error.status) {
@@ -108,6 +125,10 @@ async function checkout(req, res, next) {
     }
     next(error);
   }
+}
+
+function getCartOwnerId(req) {
+  return `customer:${req.session.user.id}`;
 }
 
 module.exports = { index, detail, guide, checkout };

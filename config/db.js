@@ -143,6 +143,7 @@ async function initializeDatabase() {
   await db.runAsync(`
     CREATE TABLE IF NOT EXISTS orders (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
       order_code TEXT UNIQUE,
       customer_name TEXT NOT NULL,
       phone TEXT NOT NULL,
@@ -203,6 +204,7 @@ async function initializeDatabase() {
     const columns = await db.allAsync("PRAGMA table_info(orders)");
     const existingNames = new Set(columns.map((column) => column.name));
     const additions = [
+      ["user_id", "INTEGER REFERENCES users(id) ON DELETE SET NULL"],
       ["order_code", "TEXT"],
       ["items_json", "TEXT NOT NULL DEFAULT '[]'"],
       ["total_price", "INTEGER NOT NULL DEFAULT 0"],

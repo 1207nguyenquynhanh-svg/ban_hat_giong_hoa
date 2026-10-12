@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
+<body data-cart-authenticated="<%= currentUser && currentUser.role === 'customer' ? 'true' : 'false' %>">
   <header class="site-header">
     <div class="header-main container">
       <a class="brand" href="/" aria-label="FloraSeed - Trang chủ"><span class="brand-mark">f</span><span>Flora<span class="brand-light">Seed</span></span></a>
@@ -22,13 +22,17 @@
       <div class="header-actions">
         <% if (currentUser) { %>
           <span class="user-greeting">Xin chào, <%= currentUser.username %></span>
+          <% if (currentUser.role === "customer") { %><a class="login-link customer-orders-link" href="/customer/orders">Đơn hàng của tôi</a><% } %>
+          <% if (currentUser.role === "admin") { %><a class="login-link" href="/admin/dashboard">Quản trị</a><% } %>
           <form action="/logout" method="post"><button class="text-button" type="submit">Đăng xuất</button></form>
         <% } else { %>
           <a class="login-link" href="/login"><span aria-hidden="true">♙</span> Đăng nhập Admin</a>
         <% } %>
-        <button class="cart-trigger" type="button" data-cart-open aria-label="Mở giỏ hàng">
-          <span aria-hidden="true">♡</span><span class="cart-trigger-label">Giỏ hàng</span><span class="cart-count" data-cart-count>0</span>
-        </button>
+        <% if (cartEnabled) { %>
+          <button class="cart-trigger" type="button" data-cart-open aria-label="Mở giỏ hàng">
+            <span aria-hidden="true">♡</span><span class="cart-trigger-label">Giỏ hàng</span><span class="cart-count" data-cart-count>0</span>
+          </button>
+        <% } %>
       </div>
     </div>
     <nav class="main-nav" aria-label="Điều hướng chính">

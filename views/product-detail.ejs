@@ -13,7 +13,9 @@
         <div><span>Độ khó gieo trồng</span><strong><%= product.difficulty %></strong></div>
         <div><span>Tình trạng</span><strong><%= product.stock > 0 ? "Còn hàng" : "Tạm hết hàng" %></strong></div>
       </div>
-      <button class="button button-primary detail-add" type="button" data-add-cart data-id="<%= product.id %>" data-name="<%= product.name %>" data-price="<%= product.price %>" data-image="<%= product.image_url %>" <%= product.stock === 0 ? "disabled" : "" %>>Thêm vào giỏ hàng <span>＋</span></button>
+      <% if (canShop) { %>
+        <button class="button button-primary detail-add" type="button" data-add-cart data-id="<%= product.id %>" data-name="<%= product.name %>" data-price="<%= product.price %>" data-image="<%= product.image_url %>" <%= product.stock === 0 ? "disabled" : "" %>>Thêm vào giỏ hàng <span>＋</span></button>
+      <% } %>
       <a class="back-link" href="/#products">← Tiếp tục chọn hạt giống</a>
       <div class="detail-promise"><span>✿</span><span><strong>Gói hạt giống được chọn lọc</strong><br>Hướng dẫn gieo trồng đi kèm mỗi đơn hàng.</span></div>
     </div>

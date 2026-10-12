@@ -1,0 +1,106 @@
+<%- include("../partials/header", { pageTitle }) %>
+<main class="admin-page container">
+  <div class="admin-heading">
+    <div>
+      <span class="eyebrow">FLORASEED · KHU VỰC QUẢN TRỊ</span>
+      <h1>Xin chào, <%= currentUser.username %></h1>
+      <p>Theo dõi đơn hàng và quản lý hạt giống trong cửa hàng.</p>
+    </div>
+    <a class="button button-outline" href="/">← Về cửa hàng</a>
+  </div>
+
+  <% if (notice) { %><div class="admin-notice" role="status"><%= notice %></div><% } %>
+
+  <% if (modal) { %>
+    <div class="admin-feedback-backdrop" data-feedback-backdrop>
+      <section class="admin-feedback" role="alertdialog" aria-modal="true" aria-labelledby="feedback-title" aria-describedby="feedback-message">
+        <div class="admin-feedback-icon" aria-hidden="true">!</div>
+        <button class="admin-feedback-close" type="button" data-feedback-close aria-label="Đóng thông báo">×</button>
+        <span class="eyebrow">FLORASEED · THÔNG BÁO</span>
+        <h2 id="feedback-title"><%= modal.title %></h2>
+        <p id="feedback-message"><%= modal.message %></p>
+        <button class="button button-primary" type="button" data-feedback-close>Đã hiểu</button>
+      </section>
+    </div>
+  <% } %>
+
+  <section class="admin-stats" aria-label="Tổng quan kinh doanh">
+    <article class="admin-stat"><span>Tổng doanh thu</span><strong><%= Number(summary.revenue).toLocaleString("vi-VN") %>đ</strong><small>Tổng giá trị đơn đã ghi nhận</small></article>
+    <article class="admin-stat"><span>Tổng số đơn hàng</span><strong><%= Number(summary.orderCount).toLocaleString("vi-VN") %></strong><small>Tính trên tất cả trạng thái</small></article>
+    <article class="admin-stat"><span>Sản phẩm đang bán</span><strong><%= products.length.toLocaleString("vi-VN") %></strong><small>Hạt giống trong danh mục</small></article>
+  </section>
+
+  <section class="admin-section">
+    <div class="admin-section-heading"><div><span class="eyebrow">ĐƠN HÀNG MỚI NHẤT</span><h2>Đơn hàng khách đã đặt</h2></div><span class="admin-count"><%= orders.length %> đơn</span></div>
+    <% if (orders.length) { %>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Danh sách hoa</th><th>Tổng tiền</th><th>Trạng thái</th><th>Thời gian</th></tr></thead>
+          <tbody>
+            <% orders.forEach((order) => { %>
+              <tr>
+                <td><strong class="order-code"><%= order.order_code || `#${order.id}` %></strong></td>
+                <td><strong><%= order.customer_name %></strong><span class="table-secondary"><%= order.phone %></span><span class="table-secondary"><%= order.address %></span></td>
+                <td>
+                  <% if (order.items.length) { %>
+                    <ul class="order-items-list">
+                      <% order.items.forEach((item) => { %><li><%= item.name %> × <%= item.quantity %></li><% }) %>
+                    </ul>
+                  <% } else { %><span class="table-secondary">Không có dữ liệu sản phẩm</span><% } %>
+                </td>
+                <td><strong><%= Number(order.total_price).toLocaleString("vi-VN") %>đ</strong></td>
+                <td><span class="order-status"><%= order.status %></span></td>
+                <td><%= order.created_at %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } else { %><p class="admin-empty">Chưa có đơn hàng nào.</p><% } %>
+  </section>
+
+  <section class="admin-section">
+    <div class="admin-section-heading"><div><span class="eyebrow">DANH MỤC SẢN PHẨM</span><h2>Thêm hạt giống mới</h2></div></div>
+    <form class="admin-product-form" action="/admin/products" method="post" enctype="multipart/form-data">
+      <label>Tên hạt giống<input name="name" required minlength="2" maxlength="120" value="<%= formValues.name %>"></label>
+      <label>Danh mục<select name="category" required><% categories.forEach((category) => { %><option value="<%= category %>" <%= formValues.category === category ? "selected" : "" %>><%= category %></option><% }) %></select></label>
+      <label>Mô tả<textarea name="description" required minlength="5" maxlength="500" rows="2"><%= formValues.description %></textarea></label>
+      <label>Ảnh từ máy (.png, .jpg)<input name="image_file" type="file" accept=".png,.jpg,.jpeg,image/png,image/jpeg"></label>
+      <label>Hoặc URL ảnh HTTPS<input name="image_url" type="url" placeholder="https://..." value="<%= formValues.image_url %>"></label>
+      <label>Giá bán (đ)<input name="price" type="number" min="0" max="100000000" step="1" required value="<%= formValues.price %>"></label>
+      <label>Số lượng<input name="stock" type="number" min="0" max="1000000" step="1" value="<%= formValues.stock %>" required></label>
+      <label>Thời gian nảy mầm<input name="germination_days" required maxlength="60" placeholder="7–14 ngày" value="<%= formValues.germination_days %>"></label>
+      <label>Độ khó<select name="difficulty" required><% difficulties.forEach((difficulty) => { %><option value="<%= difficulty %>" <%= formValues.difficulty === difficulty ? "selected" : "" %>><%= difficulty %></option><% }) %></select></label>
+      <button class="button button-primary" type="submit">Thêm sản phẩm <span>＋</span></button>
+    </form>
+  </section>
+
+  <section class="admin-section">
+    <div class="admin-section-heading"><div><span class="eyebrow">QUẢN LÝ KHO</span><h2>Sửa giá, số lượng hoặc xóa</h2></div></div>
+    <div class="admin-table-wrap">
+      <table class="admin-table product-admin-table">
+        <thead><tr><th>Sản phẩm</th><th>Danh mục</th><th>Giá bán</th><th>Tồn kho</th><th>Thao tác</th></tr></thead>
+        <tbody>
+          <% products.forEach((product) => { %>
+            <tr>
+              <td><div class="admin-product-name"><img src="<%= product.image_url %>" alt="" loading="lazy"><strong><%= product.name %></strong></div></td>
+              <td><%= product.category %></td>
+              <td colspan="2">
+                <form class="admin-inline-form" action="/admin/products/<%= product.id %>/update" method="post">
+                  <label class="sr-only" for="price-<%= product.id %>">Giá <%= product.name %></label>
+                  <input id="price-<%= product.id %>" name="price" type="number" min="0" max="100000000" step="1" value="<%= product.price %>" required>
+                  <label class="sr-only" for="stock-<%= product.id %>">Số lượng <%= product.name %></label>
+                  <input id="stock-<%= product.id %>" name="stock" type="number" min="0" max="1000000" step="1" value="<%= product.stock %>" required>
+                  <button class="small-admin-button" type="submit">Lưu</button>
+                </form>
+              </td>
+              <td><form action="/admin/products/<%= product.id %>/delete" method="post" onsubmit="return confirm('Xóa sản phẩm này khỏi cửa hàng?')"><button class="delete-admin-button" type="submit">Xóa</button></form></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<script src="/js/admin.js" defer></script>
+<%- include("../partials/footer") %>

@@ -5,6 +5,8 @@ const session = require("express-session");
 const { db, initializeDatabase } = require("./config/db");
 const productRoutes = require("./routes/productRoutes");
 const authRoutes = require("./routes/authRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const customerRoutes = require("./routes/customerRoutes");
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -26,12 +28,18 @@ app.use(session({
   }
 }));
 app.use((req, res, next) => {
-  res.locals.currentUser = req.session.user || null;
+  const currentUser = req.session.user || null;
+  res.locals.currentUser = currentUser;
+  res.locals.cartEnabled = currentUser?.role === "customer";
+  res.locals.canShop = !currentUser || currentUser.role === "customer";
   next();
 });
 
 app.use("/", productRoutes);
 app.use("/", authRoutes);
+app.use("/cart", require("./routes/cartRoutes"));
+app.use("/customer", customerRoutes);
+app.use("/admin", adminRoutes);
 
 app.use((req, res) => {
   res.status(404).render("404", { pageTitle: "Không tìm thấy trang" });

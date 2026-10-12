@@ -29,11 +29,11 @@ async function findAll(filters = {}) {
     conditions.push("difficulty = ?");
     values.push(filters.difficulty);
   }
-  if (filters.minPrice !== null) {
+  if (filters.minPrice !== null && filters.minPrice !== undefined) {
     conditions.push("price >= ?");
     values.push(filters.minPrice);
   }
-  if (filters.maxPrice !== null) {
+  if (filters.maxPrice !== null && filters.maxPrice !== undefined) {
     conditions.push("price <= ?");
     values.push(filters.maxPrice);
   }
@@ -46,10 +46,69 @@ function findById(id) {
   return db.getAsync("SELECT * FROM products WHERE id = ?", [id]);
 }
 
+function create(product) {
+  return db.runAsync(
+    `INSERT INTO products
+      (name, description, price, image_url, category, germination_days, difficulty, stock)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      product.name,
+      product.description,
+      product.price,
+      product.image_url,
+      product.category,
+      product.germination_days,
+      product.difficulty,
+      product.stock
+    ]
+  );
+}
+
+async function updatePriceAndStock(id, { price, stock }) {
+  const result = await db.runAsync(
+    "UPDATE products SET price = ?, stock = ? WHERE id = ?",
+    [price, stock, id]
+  );
+  return result.changes > 0;
+}
+
+async function remove(id) {
+  let transactionStarted = false;
+  try {
+    await db.runAsync("BEGIN IMMEDIATE TRANSACTION");
+    transactionStarted = true;
+    const product = await findById(id);
+    if (!product) {
+      await db.runAsync("ROLLBACK");
+      transactionStarted = false;
+      return false;
+    }
+
+    // Lịch sử đơn hàng vẫn còn nguyên trong items_json dưới dạng ảnh chụp sản phẩm.
+    await db.runAsync("DELETE FROM order_items WHERE product_id = ?", [id]);
+    await db.runAsync("DELETE FROM products WHERE id = ?", [id]);
+    await db.runAsync("COMMIT");
+    transactionStarted = false;
+    return true;
+  } catch (error) {
+    if (transactionStarted) {
+      try {
+        await db.runAsync("ROLLBACK");
+      } catch (rollbackError) {
+        console.error("Không thể hoàn tác thao tác xóa sản phẩm:", rollbackError);
+      }
+    }
+    throw error;
+  }
+}
+
 module.exports = {
   categories,
   difficulties,
   findAll,
   findById,
-  readPrice
+  readPrice,
+  create,
+  updatePriceAndStock,
+  remove
 };

@@ -7,6 +7,7 @@
     <p class="login-intro"><%= mode === "register" ? "Đăng ký tài khoản khách hàng để bắt đầu hành trình gieo trồng." : "Đăng nhập FloraSeed để tiếp tục hành trình gieo trồng." %></p>
     <% if (error) { %><div class="form-error" role="alert"><%= error %></div><% } %>
     <form action="<%= mode === 'register' ? '/register' : '/login' %>" method="post" id="login-form">
+      <% if (mode === "login") { %><input type="hidden" name="returnTo" value="<%= returnTo %>"><% } %>
       <label for="username">Tên đăng nhập</label>
       <input id="username" name="username" type="text" autocomplete="username" value="<%= username %>" maxlength="80" required>
       <label for="password"><%= mode === "register" ? "Tạo mật khẩu" : "Mật khẩu" %></label>
