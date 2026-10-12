@@ -28,8 +28,9 @@ Có thể đặt `DATABASE_PATH` để chọn file SQLite khác.
 
 ```text
 config/db.js                    Kết nối SQLite, khởi tạo bảng và dữ liệu mẫu
-models/productModel.js          Tìm kiếm sản phẩm và lưu đơn đặt hàng
+models/productModel.js          Tìm kiếm và đọc sản phẩm
 models/userModel.js             Truy vấn và tạo tài khoản customer
+models/orderModel.js            Lưu đơn hàng, mã đơn và kiểm tra tồn kho
 controllers/                    Xử lý trang sản phẩm, đặt hàng và đăng nhập
 routes/productRoutes.js         Định tuyến cửa hàng và checkout
 routes/authRoutes.js            Định tuyến đăng nhập và đăng xuất
@@ -46,6 +47,8 @@ Role trong bảng `users` chỉ nhận `admin` hoặc `customer`. Tài khoản c
 model đặt là `customer`, không nhận role từ biểu mẫu.
 
 Danh sách sản phẩm mẫu được thêm tự động khi khởi động. Bộ lọc và tìm kiếm đọc
-dữ liệu SQLite; máy chủ xác minh giá và tồn kho khi tạo đơn. Thanh toán chỉ là
-mô phỏng: đơn hàng được lưu trong SQLite và xác nhận trên trình duyệt, không
-tích hợp cổng thanh toán.
+dữ liệu SQLite; máy chủ xác minh giá và tồn kho khi tạo đơn. Mỗi đơn lưu mã
+`order_code`, thông tin nhận hàng, `items_json`, `total_price` và trạng thái.
+Khi lưu đơn thành công, trình duyệt hiển thị mã xác nhận và xóa giỏ hàng
+LocalStorage; nếu lưu thất bại, giỏ hàng được giữ nguyên. Thanh toán chỉ là mô
+phỏng, không tích hợp cổng thanh toán.

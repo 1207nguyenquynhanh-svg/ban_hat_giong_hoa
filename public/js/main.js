@@ -196,7 +196,7 @@
       renderCart();
       checkoutForm.reset();
       closeCart();
-      window.alert(`Đặt hàng thành công! Mã đơn hàng #${result.orderId} · Tổng cộng ${formatPrice(result.total)}. FloraSeed sẽ sớm liên hệ với bạn.`);
+      window.alert(`Đặt hàng thành công!\nMã đơn hàng: ${result.orderCode}\nTổng cộng: ${formatPrice(result.totalPrice)}\nFloraSeed sẽ sớm liên hệ với bạn.`);
     } catch (error) {
       console.error("Không thể gửi yêu cầu đặt hàng:", error);
       errorMessage.textContent = "Không kết nối được máy chủ. Vui lòng thử lại.";

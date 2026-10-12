@@ -1,4 +1,5 @@
 const productModel = require("../models/productModel");
+const orderModel = require("../models/orderModel");
 
 function getFilters(query) {
   const search = typeof query.search === "string" ? query.search.trim().slice(0, 80) : "";
@@ -93,7 +94,7 @@ async function checkout(req, res, next) {
   }
 
   try {
-    const order = await productModel.createOrder({
+    const order = await orderModel.createOrder({
       customerName: customerName.trim(),
       phone: phone.trim(),
       address: address.trim(),

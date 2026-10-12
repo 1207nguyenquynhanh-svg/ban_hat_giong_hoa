@@ -143,9 +143,13 @@ async function initializeDatabase() {
   await db.runAsync(`
     CREATE TABLE IF NOT EXISTS orders (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      order_code TEXT UNIQUE,
       customer_name TEXT NOT NULL,
       phone TEXT NOT NULL,
       address TEXT NOT NULL,
+      items_json TEXT NOT NULL DEFAULT '[]',
+      total_price INTEGER NOT NULL DEFAULT 0 CHECK (total_price >= 0),
+      status TEXT NOT NULL DEFAULT 'pending',
       total INTEGER NOT NULL CHECK (total >= 0),
       created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
@@ -160,6 +164,7 @@ async function initializeDatabase() {
       quantity INTEGER NOT NULL CHECK (quantity > 0)
     )
   `);
+  await migrateOrdersTable();
 
   for (const product of sampleProducts) {
     await db.runAsync(
@@ -191,6 +196,50 @@ async function initializeDatabase() {
         product.difficulty,
         product.name
       ]
+    );
+  }
+
+  async function migrateOrdersTable() {
+    const columns = await db.allAsync("PRAGMA table_info(orders)");
+    const existingNames = new Set(columns.map((column) => column.name));
+    const additions = [
+      ["order_code", "TEXT"],
+      ["items_json", "TEXT NOT NULL DEFAULT '[]'"],
+      ["total_price", "INTEGER NOT NULL DEFAULT 0"],
+      ["status", "TEXT NOT NULL DEFAULT 'pending'"]
+    ];
+
+    for (const [name, definition] of additions) {
+      if (!existingNames.has(name)) {
+        await db.runAsync(`ALTER TABLE orders ADD COLUMN ${name} ${definition}`);
+      }
+    }
+
+    const legacyOrders = await db.allAsync(`
+      SELECT id, total, created_at
+      FROM orders
+      WHERE order_code IS NULL OR items_json = '[]' OR total_price = 0
+    `);
+    for (const order of legacyOrders) {
+      const legacyItems = await db.allAsync(
+        `SELECT product_id AS productId, product_name AS name, unit_price AS unitPrice, quantity
+         FROM order_items WHERE order_id = ?`,
+        [order.id]
+      );
+      const createdDate = String(order.created_at || "").replace(/\D/g, "").slice(0, 8);
+      const orderCode = `FS-${createdDate || "LEGACY"}-${String(order.id).padStart(6, "0")}`;
+      await db.runAsync(
+        `UPDATE orders
+         SET order_code = COALESCE(order_code, ?),
+             items_json = CASE WHEN items_json = '[]' THEN ? ELSE items_json END,
+             total_price = CASE WHEN total_price = 0 THEN total ELSE total_price END
+         WHERE id = ?`,
+        [orderCode, JSON.stringify(legacyItems), order.id]
+      );
+    }
+
+    await db.runAsync(
+      "CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_order_code ON orders(order_code)"
     );
   }
 
