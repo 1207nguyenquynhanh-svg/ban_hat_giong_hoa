@@ -7,4 +7,11 @@ function findByUsername(username) {
   );
 }
 
-module.exports = { findByUsername };
+function createCustomer({ username, passwordHash, salt }) {
+  return db.runAsync(
+    "INSERT INTO users (username, password_hash, salt, role) VALUES (?, ?, ?, 'customer')",
+    [username, passwordHash, salt]
+  );
+}
+
+module.exports = { findByUsername, createCustomer };

@@ -1,7 +1,8 @@
 # BÁO CÁO ĐỒ ÁN VIBE CODING: WEBSITE BÁN HẠT GIỐNG HOA FLORASEED
 
-**Tên học viên / Nhóm thực hiện:** [Tên của bạn]  
-**Môn học / Đồ án:** Ứng dụng AI Hỗ Trợ Lập Trình (Vibe Coding) & Kiểm Soát Mã Nguồn
+**Tên sinh viên / Nhóm thực hiện:** Nguyễn Thị Quỳnh Anh/ Nhóm 4
+**Môn học / Đồ án:** Đồ án xây dựng và phat triển phần mềm
+**Chủ đề:** Ứng dụng AI Hỗ Trợ Lập Trình (Vibe Coding) & Kiểm Soát Mã Nguồn
 
 ---
 
@@ -44,3 +45,6 @@ exports.postLogin = (req, res) => {
     // Tiến hành kiểm tra tài khoản trong database nếu thỏa mãn ràng buộc
     // ...
 };
+
+### Lỗi khuyết thiếu hệ thống:
+Ban đầu, khi AI sinh ra phiên bản V1, hệ thống chỉ dừng lại ở mức giao diện mô phỏng (Mock UI). Qua kiểm thử và phân tích nghiệp vụ thực tế, nhóm/cá nhân đã phát hiện các điểm hạn chế về phân quyền Admin/Khách hàng, tính năng lưu trữ đơn hàng và lỗ hổng bảo mật. Từ đó đã tiến hành Refactor (nâng cấp) mã nguồn V2 với mô hình MVC chuẩn chỉnh...

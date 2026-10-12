@@ -3,7 +3,10 @@ const crypto = require("crypto");
 const sqlite3 = require("sqlite3").verbose();
 
 // Cơ sở dữ liệu được lưu thành file trong thư mục gốc dự án.
-const db = new sqlite3.Database(path.join(__dirname, "..", "floraseed.db"));
+const databasePath = process.env.DATABASE_PATH
+  ? path.resolve(process.env.DATABASE_PATH)
+  : path.join(__dirname, "..", "floraseed.db");
+const db = new sqlite3.Database(databasePath);
 
 // Bọc callback SQLite bằng Promise để model có thể dùng async/await.
 db.runAsync = function (sql, params = []) {
@@ -136,15 +139,7 @@ async function initializeDatabase() {
       stock INTEGER NOT NULL DEFAULT 50 CHECK (stock >= 0)
     )
   `);
-  await db.runAsync(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      username TEXT NOT NULL UNIQUE,
-      password_hash TEXT NOT NULL,
-      salt TEXT NOT NULL,
-      role TEXT NOT NULL DEFAULT 'user'
-    )
-  `);
+  await migrateUsersTable();
   await db.runAsync(`
     CREATE TABLE IF NOT EXISTS orders (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -207,6 +202,56 @@ async function initializeDatabase() {
       ["admin", hashPassword("Flora@Seed123", salt), salt, "admin"]
     );
   }
+}
+
+async function migrateUsersTable() {
+  const existingTable = await db.getAsync(
+    "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'users'"
+  );
+
+  const existingColumns = existingTable
+    ? await db.allAsync("PRAGMA table_info(users)")
+    : [];
+  const hasRoleColumn = existingColumns.some((column) => column.name === "role");
+  const hasRoleConstraint = existingTable
+    && /CHECK\s*\(\s*role\s+IN\s*\(\s*'admin'\s*,\s*'customer'\s*\)\s*\)/i.test(existingTable.sql);
+
+  if (existingTable && (!hasRoleColumn || !hasRoleConstraint)) {
+    const migratedRole = hasRoleColumn
+      ? "CASE WHEN role = 'admin' THEN 'admin' ELSE 'customer' END"
+      : "CASE WHEN username = 'admin' THEN 'admin' ELSE 'customer' END";
+    await db.runAsync("BEGIN IMMEDIATE TRANSACTION");
+    try {
+      await db.runAsync("ALTER TABLE users RENAME TO users_legacy_migration");
+      await createUsersTable();
+      await db.runAsync(`
+        INSERT INTO users (id, username, password_hash, salt, role)
+        SELECT id, username, password_hash, salt, ${migratedRole}
+        FROM users_legacy_migration
+      `);
+      await db.runAsync("DROP TABLE users_legacy_migration");
+      await db.runAsync("COMMIT");
+    } catch (error) {
+      await db.runAsync("ROLLBACK");
+      throw error;
+    }
+    return;
+  }
+
+  await createUsersTable();
+}
+
+function createUsersTable() {
+  return db.runAsync(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      salt TEXT NOT NULL,
+      role TEXT NOT NULL DEFAULT 'customer'
+        CHECK (role IN ('admin', 'customer'))
+    )
+  `);
 }
 
 module.exports = { db, initializeDatabase };

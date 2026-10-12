@@ -3,17 +3,18 @@
   <section class="login-card">
     <div class="login-flower" aria-hidden="true">✿</div>
     <span class="eyebrow">KHU VƯỜN RIÊNG CỦA BẠN</span>
-    <h1>Chào mừng trở lại</h1>
-    <p class="login-intro">Đăng nhập FloraSeed để tiếp tục hành trình gieo trồng.</p>
+    <h1><%= mode === "register" ? "Tạo tài khoản mới" : "Chào mừng trở lại" %></h1>
+    <p class="login-intro"><%= mode === "register" ? "Đăng ký tài khoản khách hàng để bắt đầu hành trình gieo trồng." : "Đăng nhập FloraSeed để tiếp tục hành trình gieo trồng." %></p>
     <% if (error) { %><div class="form-error" role="alert"><%= error %></div><% } %>
-    <form action="/login" method="post" id="login-form">
+    <form action="<%= mode === 'register' ? '/register' : '/login' %>" method="post" id="login-form">
       <label for="username">Tên đăng nhập</label>
       <input id="username" name="username" type="text" autocomplete="username" value="<%= username %>" maxlength="80" required>
-      <label for="password">Mật khẩu</label>
-      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <label for="password"><%= mode === "register" ? "Tạo mật khẩu" : "Mật khẩu" %></label>
+      <input id="password" name="password" type="password" autocomplete="<%= mode === 'register' ? 'new-password' : 'current-password' %>" maxlength="256" required>
       <small class="input-hint">Mật khẩu cần có ít nhất một ký tự @.</small>
-      <button class="button button-primary login-submit" type="submit">Đăng nhập <span>→</span></button>
+      <button class="button button-primary login-submit" type="submit"><%= mode === "register" ? "Tạo tài khoản" : "Đăng nhập" %> <span>→</span></button>
     </form>
+    <p class="demo-account"><%= mode === "register" ? "Tài khoản mới được tạo với quyền khách hàng." : "Chưa có tài khoản? " %><a href="<%= mode === 'register' ? '/login' : '/register' %>"><%= mode === "register" ? "Đăng nhập" : "Đăng ký khách hàng" %></a></p>
     <a class="back-link" href="/">← Trở về cửa hàng</a>
   </section>
 </main>
@@ -23,7 +24,7 @@
     const password = document.getElementById("password").value;
     if (!password.includes("@")) {
       event.preventDefault();
-      window.alert("Mật khẩu phải chứa ký tự @.");
+      window.alert("Mật khẩu phải chứa ký tự @ và không dài quá 256 ký tự.");
       document.getElementById("password").focus();
     }
   });
